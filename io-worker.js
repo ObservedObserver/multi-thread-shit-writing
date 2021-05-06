@@ -7,7 +7,10 @@ const { parentPort } = threads;
 // const STR_LEN = 1000000;
 
 const WRITE_NUM = 100;
-const STR_LEN = 10000;
+const STR_LEN = 1000000;
+let state = {
+    taskId: -1
+}
 
 function writeSingleFile(filePath) {
     for (let i = 0; i < WRITE_NUM; i++) {
@@ -20,24 +23,29 @@ function writeSingleFile(filePath) {
         });
         parentPort.postMessage({
             type: 'running',
-            data: i / WRITE_NUM
+            data: i / WRITE_NUM,
+            taskId: state.taskId
         })
     }
 }
 
 parentPort.on("message", (job) => {
     if (job.type === 'start') {
+        state.taskId = job.taskId;
         try {
             writeSingleFile(job.filePath);
         } catch (error) {
             console.error(error)
             parentPort.postMessage({
-                type: 'done'
+                type: 'done',
+                taskId: state.taskId
             });
         }
         parentPort.postMessage({
-            type: 'done'
+            type: 'done',
+            taskId: state.taskId
         });
+        state.taskId = -1;
     }
 });
 
