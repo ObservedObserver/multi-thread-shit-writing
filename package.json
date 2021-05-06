@@ -1,0 +1,19 @@
+{
+  "name": "io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "io.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "set UV_THREADPOOL_SIZE=4 && node ./io-multi-thread.js"
+  },
+  "prettier": {
+    "tabWidth": 4
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "single-line-log": "^1.1.2"
+  }
+}
