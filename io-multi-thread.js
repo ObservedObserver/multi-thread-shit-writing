@@ -1,10 +1,15 @@
 const fs = require('fs');
 const threads = require('worker_threads');
 const stdout = require("single-line-log").stdout;
+const path = require('path');
+const { printProgressBar } = require('./ui.js')
 
 const os = require('os');
 
-const num_of_threads = 8//os.cpus().length;
+const WORKER_PATH = path.resolve(__dirname, './io-worker.js');
+const DATA_DIR = path.resolve(__dirname, './ans');
+
+const num_of_threads = os.cpus().length;
 
 const workerPool = [];
 const workerStatePool = [];
@@ -19,20 +24,6 @@ function checkEnd() {
     }
 }
 
-function printProgressBar(percent) {
-    const BAR_LENGTH = 30;
-    let bar = '';
-    for (let i = 0; i < BAR_LENGTH; i++) {
-        let perIndex = i / BAR_LENGTH;
-        if (percent < perIndex) {
-            bar += '░'
-        } else {
-            bar += '█'
-        }
-    }
-    return `[${bar}]`
-}
-
 function logState() {
     let text = '==========\n';
     for (let i = 0; i < workerStatePool.length; i++) {
@@ -40,6 +31,10 @@ function logState() {
         text += `Thread ${i + 1} is running, progress: ${Math.round(progress * 100)}%. ${printProgressBar(progress)} \n`;
     }
     stdout(text)
+}
+
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR);
 }
 
 for (let i = 0; i < num_of_threads; i++) {
@@ -51,7 +46,6 @@ for (let i = 0; i < num_of_threads; i++) {
         isEnd: false
     });
     worker.on('message', (msg) => {
-        // console.log('ev', ev)
         if (msg.type === 'done') {
             workerStatePool[i].progress = 1;
             workerStatePool[i].isEnd = true;
@@ -67,7 +61,6 @@ for (let i = 0; i < num_of_threads; i++) {
 for (let i = 0; i < num_of_threads; i++) {
     workerPool[i].postMessage({
         type: 'start',
-        filePath: `./ans/big_3_${i}.txt`
+        filePath: path.resolve(__dirname, `./ans/big_3_${i}.txt`)
     });
-    // stdout.clear()
 }

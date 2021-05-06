@@ -3,8 +3,11 @@ const fs = require('fs')
 
 const { parentPort } = threads;
 
-const WRITE_NUM = 300;
-const STR_LEN = 400000;
+// const WRITE_NUM = 1000;
+// const STR_LEN = 1000000;
+
+const WRITE_NUM = 100;
+const STR_LEN = 10000;
 
 function writeSingleFile(filePath) {
     for (let i = 0; i < WRITE_NUM; i++) {
@@ -23,7 +26,6 @@ function writeSingleFile(filePath) {
 }
 
 parentPort.on("message", (job) => {
-    console.log('job', job)
     if (job.type === 'start') {
         try {
             writeSingleFile(job.filePath);
